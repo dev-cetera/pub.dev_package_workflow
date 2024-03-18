@@ -1,6 +1,6 @@
 # Workflow for Managing Pub.dev Packages
 
-This workflow streamlines the process of managing your pub.dev packages by automatically updating the CHANGELOG.md with each commit and automatically publishing your package to pub.dev upon creating a GitHub release.
+This workflow simplifies the management of your pub.dev packages. It automatically updates the CHANGELOG.md, formats the Dart code, and applies Dart fixes with each commit. Additionally, it automates the publication of your package to pub.dev whenever a GitHub release is created.
 
 ## Setup Instructions
 
