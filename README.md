@@ -1,6 +1,6 @@
 # Workflow for Managing Pub.dev Packages
 
-This workflow streamlines the process of managing your pub.dev packages by automatically updating the CHANGELOG.md with each commit and facilitating package publication to pub.dev upon creating a GitHub release.
+This workflow streamlines the process of managing your pub.dev packages by automatically updating the CHANGELOG.md with each commit and automatically publishing your package to pub.dev upon creating a GitHub release.
 
 ## Setup Instructions
 
