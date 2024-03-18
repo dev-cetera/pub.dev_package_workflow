@@ -13,7 +13,7 @@ cd your_project
 **2. Clone this repo into a `.github/` folder:**
 
 ```zsh
-git clone https://github.com/robmllze/pub.dev_package_workflow.git .github && rm -rf .github/.git/
+git clone https://github.com/robmllze/pub.dev_package_workflow.git .github
 ```
 
 **3. Remove the `/.git` folder to include it to your project:**
