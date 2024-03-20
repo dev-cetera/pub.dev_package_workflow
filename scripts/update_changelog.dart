@@ -10,7 +10,7 @@
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //.title~
 
-import 'dart:io';
+import "dart:io";
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -42,7 +42,7 @@ void main(List<String> args) {
   }
   contents = "# Changelog\n\n${(sections.toList()..sort((a, b) {
       return b.releasedAt.compareTo(a.releasedAt);
-    })).map((e) => e.toString()).join('\n')}";
+    })).map((e) => e.toString()).join("\n")}";
 
   file.writeAsStringSync(contents);
   print("Changelog updated with version $version.");
@@ -58,7 +58,7 @@ Set<VersionSection> extractSections(String contents) {
     final start = allVersionMatches[i].end;
     final end = i + 1 < allVersionMatches.length ? allVersionMatches[i + 1].start : contents.length;
     final sectionContents = contents.substring(start, end).trim();
-    final lines = sectionContents.split('\n').where((line) => line.isNotEmpty).toList();
+    final lines = sectionContents.split("\n").where((line) => line.isNotEmpty).toList();
     final version =
         allVersionMatches[i].group(0)!.substring(4, allVersionMatches[i].group(0)!.length - 1);
     var releasedAt = DateTime.now().toUtc();
@@ -125,7 +125,7 @@ class VersionSection {
 
   @override
   String toString() {
-    final updatesString = updates.map((update) => '- $update').join('\n');
-    return '## [$version]\n\n- Released @ $releasedAt\n$updatesString\n';
+    final updatesString = updates.map((update) => "- $update").join("\n");
+    return "## [$version]\n\n- Released @ $releasedAt\n$updatesString\n";
   }
 }
