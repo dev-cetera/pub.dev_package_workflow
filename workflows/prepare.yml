@@ -27,10 +27,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Fetch dev_package_workflow
-        run: rm -rf .github && git clone https://github.com/robmllze/pub.dev_package_workflow.git .github
-
+        
       - name: Set up Dart
         uses: dart-lang/setup-dart@v1.2
 
@@ -57,7 +54,6 @@ jobs:
         run: |
           RELEASE_NOTES="${{ steps.get_commits.outputs.messages }}"
           dart run .github/scripts/update_changelog.dart "${{ steps.get_version.outputs.extracted_version }}" "$RELEASE_NOTES"
-        shell: bash
 
       - name: Commit and push changes
         run: |
