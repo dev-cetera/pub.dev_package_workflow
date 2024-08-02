@@ -1,30 +1,27 @@
 //.title
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //
-// X|Y|Z & Dev
-//
-// Copyright Ⓒ Robert Mollentze, xyzand.dev
-//
-// Licensing details can be found in the LICENSE file in the root directory.
+// Dart/Flutter (DF) Packages by DevCetra.com & contributors. See MIT LICENSE
+// file in the root directory.
 //
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //.title~
 
-import "dart:io";
+import 'dart:io';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 void main(List<String> args) {
-  final version = args.isNotEmpty ? args[0] : "0.1.0";
-  final newReleaseNotes = args.length > 1 ? args[1] : "Initial release.";
-  final changelogPath = "CHANGELOG.md";
+  final version = args.isNotEmpty ? args[0] : '0.1.0';
+  final newReleaseNotes = args.length > 1 ? args[1] : 'Initial release.';
+  final changelogPath = 'CHANGELOG.md';
   final file = File(changelogPath);
   if (!file.existsSync()) {
-    print("$changelogPath does not exist.");
+    print('$changelogPath does not exist.');
     exit(1);
   }
   var contents = file.readAsStringSync();
-  contents = contents.replaceAll("# Changelog", "").trim();
+  contents = contents.replaceAll('# Changelog', '').trim();
   final sections = extractSections(contents);
   final versionExist = sections.where((e) => e.version == version).isNotEmpty;
   if (versionExist) {
@@ -33,56 +30,52 @@ void main(List<String> args) {
     });
   } else {
     sections.add(
-      VersionSection(
+      _VersionSection(
         version: version,
         releasedAt: DateTime.now().toUtc(),
         updates: {newReleaseNotes},
       ),
     );
   }
-  contents = "# Changelog\n\n${(sections.toList()..sort((a, b) {
+  contents = '# Changelog\n\n${(sections.toList()..sort((a, b) {
       return b.releasedAt.compareTo(a.releasedAt);
-    })).map((e) => e.toString()).join("\n")}";
+    })).map((e) => e.toString()).join('\n')}';
 
   file.writeAsStringSync(contents);
-  print("Changelog updated with version $version.");
+  print('Changelog updated with version $version.');
 }
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-Set<VersionSection> extractSections(String contents) {
-  final headerPattern = RegExp(r"## \[\d+\.\d+\.\d+(\+\d+)?\]");
+Set<_VersionSection> extractSections(String contents) {
+  final headerPattern = RegExp(r'## \[\d+\.\d+\.\d+(\+\d+)?\]');
   final allVersionMatches = headerPattern.allMatches(contents).toList();
-  final results = <VersionSection>{};
+  final results = <_VersionSection>{};
   for (var i = 0; i < allVersionMatches.length; i++) {
     final start = allVersionMatches[i].end;
-    final end = i + 1 < allVersionMatches.length
-        ? allVersionMatches[i + 1].start
-        : contents.length;
+    final end = i + 1 < allVersionMatches.length ? allVersionMatches[i + 1].start : contents.length;
     final sectionContents = contents.substring(start, end).trim();
-    final lines =
-        sectionContents.split("\n").where((line) => line.isNotEmpty).toList();
-    final version = allVersionMatches[i]
-        .group(0)!
-        .substring(4, allVersionMatches[i].group(0)!.length - 1);
+    final lines = sectionContents.split('\n').where((line) => line.isNotEmpty).toList();
+    final version =
+        allVersionMatches[i].group(0)!.substring(4, allVersionMatches[i].group(0)!.length - 1);
     var releasedAt = DateTime.now().toUtc();
     final updates = <String>{};
     final old = lines
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
-        .map((e) => e.startsWith("-") ? e.substring(1) : e)
+        .map((e) => e.startsWith('-') ? e.substring(1) : e)
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty);
     for (var line in old) {
-      if (line.contains("Released @")) {
-        final temp = line.split("Released @").last.trim();
+      if (line.contains('Released @')) {
+        final temp = line.split('Released @').last.trim();
         releasedAt = DateTime.tryParse(temp) ?? releasedAt;
       } else {
         updates.add(line);
       }
     }
     results.add(
-      VersionSection(
+      _VersionSection(
         version: version,
         releasedAt: releasedAt,
         updates: updates,
@@ -95,7 +88,7 @@ Set<VersionSection> extractSections(String contents) {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-class VersionSection {
+class _VersionSection {
   //
   //
   //
@@ -108,7 +101,7 @@ class VersionSection {
   //
   //
 
-  VersionSection({
+  _VersionSection({
     required this.version,
     required this.releasedAt,
     this.updates = const {},
@@ -129,7 +122,7 @@ class VersionSection {
 
   @override
   String toString() {
-    final updatesString = updates.map((update) => "- $update").join("\n");
-    return "## [$version]\n\n- Released @ $releasedAt\n$updatesString\n";
+    final updatesString = updates.map((update) => '- $update').join('\n');
+    return '## [$version]\n\n- Released @ ${releasedAt.month}/${releasedAt.year} (UTC)\n$updatesString\n';
   }
 }

@@ -1,12 +1,12 @@
 ##.title
 ## ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 ##
-## X|Y|Z & Dev
+## Dart/Flutter (DF) Packages by DevCetra.com & contributors.
 ##
-## Copyright Ⓒ Robert Mollentze, xyzand.dev
-## 
-## Licensing details can be found in the LICENSE file in the root directory.
-## 
+## See MIT LICENSE file in the root directory.
+##
+## For more about publishing, see: https://dart.dev/tools/pub/automated-publishing
+##
 ## ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 ##.title~
 
@@ -17,7 +17,7 @@ name: Publish to pub.dev
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
+      - "v[0-9]+.[0-9]+.[0-9]+*"
 
 ## -----------------------------------------------------------------------------
 
