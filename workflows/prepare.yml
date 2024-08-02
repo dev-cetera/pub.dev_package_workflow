@@ -25,7 +25,7 @@ jobs:
   update-changelog:
     runs-on: ubuntu-latest
     steps:
-      - name: Sync .github
+      - name: Fetch dev_package_workflow
         run: rm -rf .github && git clone https://github.com/robmllze/pub.dev_package_workflow.git .github
 
       - name: Checkout code
