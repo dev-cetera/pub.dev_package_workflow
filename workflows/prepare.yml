@@ -28,22 +28,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1.2
-
-      - name: Format Dart code
-        run: dart format .
-
-      - name: Apply Dart fixes
-        run: dart fix --apply
-
-      - name: Extract version from pubspec.yaml
-        id: get_version
-        run: |
-          VERSION=$(grep "version:" pubspec.yaml | sed 's/version: //')
-          echo "Extracted version: $VERSION"
-          echo "::set-output name=extracted_version::$VERSION"
-
       - name: Get commit messages
         id: get_commits
         run: |
@@ -60,6 +44,22 @@ jobs:
             echo "Commit message does not start with '+'. Exiting."
             exit 1
           fi
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1.2
+
+      - name: Format Dart code
+        run: dart format .
+
+      - name: Apply Dart fixes
+        run: dart fix --apply
+
+      - name: Extract version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep "version:" pubspec.yaml | sed 's/version: //')
+          echo "Extracted version: $VERSION"
+          echo "::set-output name=extracted_version::$VERSION"
 
       - name: Commit and push changes
         if: steps.check_message.outputs['exit-code'] != 1
