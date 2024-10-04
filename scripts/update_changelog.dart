@@ -56,11 +56,15 @@ Set<_VersionSection> extractSections(String contents) {
   final results = <_VersionSection>{};
   for (var i = 0; i < allVersionMatches.length; i++) {
     final start = allVersionMatches[i].end;
-    final end = i + 1 < allVersionMatches.length ? allVersionMatches[i + 1].start : contents.length;
+    final end = i + 1 < allVersionMatches.length
+        ? allVersionMatches[i + 1].start
+        : contents.length;
     final sectionContents = contents.substring(start, end).trim();
-    final lines = sectionContents.split('\n').where((line) => line.isNotEmpty).toList();
-    final version =
-        allVersionMatches[i].group(0)!.substring(4, allVersionMatches[i].group(0)!.length - 1);
+    final lines =
+        sectionContents.split('\n').where((line) => line.isNotEmpty).toList();
+    final version = allVersionMatches[i]
+        .group(0)!
+        .substring(4, allVersionMatches[i].group(0)!.length - 1);
     var releasedAt = DateTime.now().toUtc();
     final updates = <String>{};
     final old = lines
@@ -115,8 +119,8 @@ class _VersionSection {
   //
 
   void addUpdate(String update) {
-    this.updates.add(update);
-    this.releasedAt = DateTime.now().toUtc();
+    updates.add(update);
+    releasedAt = DateTime.now().toUtc();
   }
 
   //
@@ -136,28 +140,23 @@ int compareVersions(String version1, String version2) {
   List<int> parseVersion(String version) {
     // Split by the '+' first to handle the build number
     final parts = version.split('+');
-    final versionParts = parts[0].split('.').map(int.tryParse).map((e) => e ?? 0).toList();
-
+    final versionParts =
+        parts[0].split('.').map(int.tryParse).map((e) => e ?? 0).toList();
     // Add the build number as the last part (if it exists)
     if (parts.length > 1) {
       versionParts.add(int.tryParse(parts[1]) ?? 0);
     }
-
     return versionParts;
   }
 
   final v1 = parseVersion(version1);
   final v2 = parseVersion(version2);
-
   final maxLength = v1.length > v2.length ? v1.length : v2.length;
-
   for (var i = 0; i < maxLength; i++) {
     final part1 = i < v1.length ? v1[i] : 0;
     final part2 = i < v2.length ? v2[i] : 0;
-
     if (part1 > part2) return 1;
     if (part1 < part2) return -1;
   }
-
   return 0;
 }
