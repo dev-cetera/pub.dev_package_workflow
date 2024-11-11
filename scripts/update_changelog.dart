@@ -40,9 +40,10 @@ void main(List<String> args) {
       ),
     );
   }
-  contents = '# Changelog\n\n${(sections.toList()..sort((a, b) {
-      return compareVersions(b.version, a.version);
-    })).map((e) => e.toString()).join('\n')}';
+  contents =
+      '# Changelog\n\n${(sections.toList()..sort((a, b) {
+        return compareVersions(b.version, a.version);
+      })).map((e) => e.toString()).join('\n')}';
 
   file.writeAsStringSync(contents);
   print('Changelog updated with version $version.');
@@ -56,9 +57,10 @@ Set<_VersionSection> extractSections(String contents) {
   final results = <_VersionSection>{};
   for (var i = 0; i < allVersionMatches.length; i++) {
     final start = allVersionMatches[i].end;
-    final end = i + 1 < allVersionMatches.length
-        ? allVersionMatches[i + 1].start
-        : contents.length;
+    final end =
+        i + 1 < allVersionMatches.length
+            ? allVersionMatches[i + 1].start
+            : contents.length;
     final sectionContents = contents.substring(start, end).trim();
     final lines =
         sectionContents.split('\n').where((line) => line.isNotEmpty).toList();
