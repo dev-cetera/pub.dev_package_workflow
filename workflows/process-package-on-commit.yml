@@ -10,7 +10,7 @@
 ## ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 ##.title~
 
-name: Prepare Release Version
+name: Process Package on Commit
 
 ## -----------------------------------------------------------------------------
 
@@ -26,6 +26,11 @@ on:
 jobs:
   prepare:
     runs-on: ubuntu-latest  # Specifies the environment (Ubuntu) for the job
+    # NEW: Add permissions for the GitHub CLI to create a release from this workflow
+    permissions:
+      contents: write       # To push commits
+      pull-requests: write  # To create releases
+
     steps:
       # Step 1: Checkout the full repository history
       - name: Checkout code
@@ -54,12 +59,12 @@ jobs:
           else
             echo "SHOULD_PREPARE=false" >> $GITHUB_OUTPUT
           fi
-          # Checks if the commit message starts with exactly '++' to trigger publication
+          # Checks if the commit message starts with exactly '++' to trigger a full release
           if [[ "$COMMIT_MSG" == ++* ]]; then
-            echo "SHOULD_PUBLISH=true" >> $GITHUB_OUTPUT
-            echo "Publication triggered."
+            echo "IS_FULL_RELEASE=true" >> $GITHUB_OUTPUT
+            echo "Full release will be created."
           else
-            echo "SHOULD_PUBLISH=false" >> $GITHUB_OUTPUT
+            echo "IS_FULL_RELEASE=false" >> $GITHUB_OUTPUT
           fi
 
       # Step 4: Set up Dart environment
@@ -114,8 +119,8 @@ jobs:
           # Runs a Dart script to generate README.md using the template, package name, and version
           dart run .github/scripts/update_readme.dart "${{ env.TEMPLATE_PATH }}" "${{ steps.get_package_info.outputs.PACKAGE_NAME }}" "${{ steps.get_package_info.outputs.PUBSPEC_VERSION }}"
 
-      # Step 10: Commit all automated changes
-      - name: Commit all automated changes
+      # Step 10: Commit and Push automated changes
+      - name: Commit and Push Changes
         if: steps.check_message.outputs.SHOULD_PREPARE == 'true'  # Only runs if preparation is triggered
         run: |
           # Configures Git user for the automated commit
@@ -126,42 +131,32 @@ jobs:
           # Commits changes only if there are staged changes
           if ! git diff --staged --quiet; then
             git commit -m "ci: bump version to v${{ steps.get_package_info.outputs.PUBSPEC_VERSION }}"
+            # Rebases local changes to avoid race conditions before pushing
+            git pull --rebase
+            # Pushes the updated main branch to the remote repository
+            git push origin main
           else
             echo "No changes to commit."
           fi
-
-      # Step 11: Force-Create and Push Git Tag
-      - name: Force-Create and Push Git Tag
+      
+      # Step 11: Create a GitHub Release, which will trigger the separate 'publish.yml' workflow
+      - name: Create GitHub Release
         if: steps.check_message.outputs.SHOULD_PREPARE == 'true'  # Only runs if preparation is triggered
-        run: |
-          # Defines the tag name based on the package version
-          TAG_NAME="v${{ steps.get_package_info.outputs.PUBSPEC_VERSION }}"
-          # Deletes the tag on the remote repository if it already exists
-          git push --delete origin "$TAG_NAME" || true
-          # Creates or updates the tag with an annotated message
-          git tag -a -f "$TAG_NAME" -m "Release version ${TAG_NAME}"
-          # Pushes the tag to the remote repository
-          git push origin "$TAG_NAME"
-          echo "Successfully created or replaced tag ${TAG_NAME}."
-
-      # Step 12: Push automated commit
-      - name: Push automated commit
-        if: steps.check_message.outputs.SHOULD_PREPARE == 'true'  # Only runs if preparation is triggered
-        run: |
-          # Rebases local changes to avoid conflicts
-          git pull --rebase
-          # Pushes the updated main branch to the remote repository
-          git push origin main
-
-      # Step 13: Publish to pub.dev
-      - name: Publish to pub.dev
-        if: steps.check_message.outputs.SHOULD_PUBLISH == 'true'  # Only runs if publication is triggered (commit starts with '++')
-        run: |
-          # Publishes the package to pub.dev using Dart's publish command
-          dart pub publish --force
         env:
-          # Environment variables for pub.dev authentication (must be set in GitHub secrets)
-          PUB_ACCESS_TOKEN: ${{ secrets.PUB_ACCESS_TOKEN }}
-          PUB_REFRESH_TOKEN: ${{ secrets.PUB_REFRESH_TOKEN }}
-          PUB_TOKEN_ENDPOINT: ${{ secrets.PUB_TOKEN_ENDPOINT }}
-          PUB_HOSTED_URL: ${{ secrets.PUB_HOSTED_URL }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Provides authentication for the GitHub CLI
+        run: |
+          TAG_NAME="v${{ steps.get_package_info.outputs.PUBSPEC_VERSION }}"
+          RELEASE_NOTES=$(echo "${{ steps.get_commit.outputs.COMMIT_MSG }}" | sed 's/^\++//' | xargs)
+          
+          # Sets the --prerelease flag if the commit did not start with '++'
+          PRERELEASE_FLAG=""
+          if [[ "${{ steps.check_message.outputs.IS_FULL_RELEASE }}" == "false" ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+          
+          echo "Creating release for tag ${TAG_NAME}..."
+          # Uses the GitHub CLI to create a release from the commit, which also creates the tag.
+          gh release create "$TAG_NAME" \
+            --title "Release ${TAG_NAME}" \
+            --notes "$RELEASE_NOTES" \
+            $PRERELEASE_FLAG

@@ -15,7 +15,7 @@ This repository provides a powerful and streamlined set of GitHub Actions workfl
 
 This project contains three key GitHub Actions workflows.
 
-### 1. `prepare.yml`
+### 1. `process-package-on-commit.yml`
 
 This is the primary workflow for managing releases directly from your commit messages. It triggers on every push to your `main` branch.
 
@@ -26,13 +26,13 @@ This is the primary workflow for managing releases directly from your commit mes
     - Generate a standardized `README.md` from a central template.
     - Commit these automated changes with the message `ci: bump version to v[version]`.
     - Create and push a Git tag for the new version.
-- **Prepare and Publish (`++`):** If your commit message starts with two plus signs (e.g., `++ Major performance improvements`), the workflow will do **everything above** and then automatically **publish the package to pub.dev** if properly configured. See https://dart.dev/tools/pub/automated-publishing.
+- **Prepare and Publish (`++`):** If your commit message starts with two plus signs (e.g., `++Major performance improvements`), the workflow will do **everything above** and then automatically **publish the package to pub.dev** if properly configured. See https://dart.dev/tools/pub/automated-publishing.
 
-### 2. `publish.yml`
+### 2. `publish-package-on-release.yml`
 
 This workflow provides a manual trigger for publishing. It activates **only** when you create a new release in the GitHub UI. This is perfect for when you want to review changes on the `main` branch before deciding to publish.
 
-### 3. `deploy.yml` (Optional)
+### 3. `deploy-example-on-commit.yml` (Optional)
 
 If your project contains a Flutter web example in a `hosted_example` directory, this workflow will automatically build it and deploy it to GitHub Pages on every push to the `main` branch. This is great for providing live demos of your package.
 
