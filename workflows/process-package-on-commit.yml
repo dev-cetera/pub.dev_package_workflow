@@ -10,7 +10,7 @@
 ## ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 ##.title~
 
-name: Process Package on Commit
+name: Prepare Release
 
 ## -----------------------------------------------------------------------------
 
@@ -75,11 +75,12 @@ jobs:
       # Step 5: Fetch _README_TEMPLATE.md
       - name: Fetch README Template
         if: steps.check_message.outputs.SHOULD_PREPARE == 'true'  # Only runs if preparation is triggered
+        id: fetch_template # Assigns an ID to reference outputs later
         run: |
           # Clones the Dart package template repository to access the README template
           git clone --depth 1 https://github.com/dev-cetera/dart_package_template.git /tmp/dart_package_template
-          # Sets the path to the README template as an environment variable
-          echo "TEMPLATE_PATH=/tmp/dart_package_template/_README_TEMPLATE.md" >> $GITHUB_ENV
+          # Stores the path to the README template in this step's output for other steps to use
+          echo "TEMPLATE_PATH=/tmp/dart_package_template/_README_TEMPLATE.md" >> $GITHUB_OUTPUT
 
       # Step 6: Format and Fix Dart Code
       - name: Format and Fix Dart Code
@@ -107,7 +108,7 @@ jobs:
       - name: Update CHANGELOG.md
         if: steps.check_message.outputs.SHOULD_PREPARE == 'true'  # Only runs if preparation is triggered
         run: |
-          # Cleans the commit message by removing leading '+' characters
+          # Cleans the commit message by removing leading '+' characters and trimming whitespace
           RELEASE_NOTES=$(echo "${{ steps.get_commit.outputs.COMMIT_MSG }}" | sed 's/^\++//' | xargs)
           # Runs a Dart script to update the changelog with the version and release notes
           dart run .github/scripts/update_changelog.dart "${{ steps.get_package_info.outputs.PUBSPEC_VERSION }}" "$RELEASE_NOTES"
@@ -116,8 +117,8 @@ jobs:
       - name: Generate README.md
         if: steps.check_message.outputs.SHOULD_PREPARE == 'true'  # Only runs if preparation is triggered
         run: |
-          # Runs a Dart script to generate README.md using the template, package name, and version
-          dart run .github/scripts/update_readme.dart "${{ env.TEMPLATE_PATH }}" "${{ steps.get_package_info.outputs.PACKAGE_NAME }}" "${{ steps.get_package_info.outputs.PUBSPEC_VERSION }}"
+          # Runs a Dart script to generate README.md using the template path, package name, and version
+          dart run .github/scripts/update_readme.dart "${{ steps.fetch_template.outputs.TEMPLATE_PATH }}" "${{ steps.get_package_info.outputs.PACKAGE_NAME }}" "${{ steps.get_package_info.outputs.PUBSPEC_VERSION }}"
 
       # Step 10: Commit and Push automated changes
       - name: Commit and Push Changes
@@ -145,7 +146,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Provides authentication for the GitHub CLI
         run: |
+          # Defines the tag name based on the package version
           TAG_NAME="v${{ steps.get_package_info.outputs.PUBSPEC_VERSION }}"
+          # Cleans the commit message for use as release notes
           RELEASE_NOTES=$(echo "${{ steps.get_commit.outputs.COMMIT_MSG }}" | sed 's/^\++//' | xargs)
           
           # Sets the --prerelease flag if the commit did not start with '++'
@@ -155,7 +158,7 @@ jobs:
           fi
           
           echo "Creating release for tag ${TAG_NAME}..."
-          # Uses the GitHub CLI to create a release from the commit, which also creates the tag.
+          # Uses the GitHub CLI to create a release. This automatically creates the tag on the commit.
           gh release create "$TAG_NAME" \
             --title "Release ${TAG_NAME}" \
             --notes "$RELEASE_NOTES" \
