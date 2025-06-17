@@ -14,10 +14,13 @@ name: Publish on Release
 
 ## -----------------------------------------------------------------------------
 
-# This workflow is triggered ONLY when a new release is created in the GitHub UI.
 on:
+  # Trigger 1: When a new release is created in the GitHub UI.
   release:
     types: [created]
+
+   # Trigger 2: Allows manual execution from the Actions tab.
+  workflow_dispatch:
 
 ## -----------------------------------------------------------------------------
 
