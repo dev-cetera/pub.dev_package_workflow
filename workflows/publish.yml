@@ -10,19 +10,22 @@
 ## ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 ##.title~
 
-name: Publish to pub.dev
+name: Publish on Release
 
 ## -----------------------------------------------------------------------------
 
+# This workflow is triggered ONLY when a new release is created in the GitHub UI.
 on:
-  push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
+  release:
+    types: [created]
 
 ## -----------------------------------------------------------------------------
 
 jobs:
   publish:
+    # This permission is required for OIDC authentication with pub.dev.
     permissions:
-      id-token: write
+      id-token: write 
+    
+    # This is the 'magic' line that calls the official, reusable workflow.
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
