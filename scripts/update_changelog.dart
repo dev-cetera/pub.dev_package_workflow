@@ -28,9 +28,9 @@ void main(List<String> args) {
   final sections = extractSections(contents);
   final versionExist = sections.where((e) => e.version == version).isNotEmpty;
   if (versionExist) {
-    for (final e in sections.where((e) => e.version == version)) {
+    for (final versionSection in sections.where((e) => e.version == version)) {
       if (comitMesssage.isNotEmpty) {
-        e.addUpdate(comitMesssage);
+        versionSection.addUpdate(comitMesssage);
       }
     }
   } else {
