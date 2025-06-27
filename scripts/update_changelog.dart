@@ -93,17 +93,9 @@ Set<_VersionSection> extractSections(String contents) {
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 class _VersionSection {
-  //
-  //
-  //
-
   String version;
   DateTime releasedAt;
   Set<String> updates;
-
-  //
-  //
-  //
 
   _VersionSection({
     required this.version,
@@ -111,24 +103,24 @@ class _VersionSection {
     Set<String>? updates,
   }) : updates = updates ?? {};
 
-  //
-  //
-  //
-
   void addUpdate(String update) {
     updates.add(update);
     releasedAt = DateTime.now().toUtc();
   }
-
-  //
-  //
-  //
 
   @override
   String toString() {
     final updatesString = updates.map((update) => '- $update').join('\n');
     return '## [$version]\n\n- Released @ ${releasedAt.month}/${releasedAt.year} (UTC)\n$updatesString\n';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _VersionSection && runtimeType == other.runtimeType && version == other.version;
+
+  @override
+  int get hashCode => version.hashCode;
 }
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
